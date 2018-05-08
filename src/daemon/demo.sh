@@ -55,6 +55,11 @@ function bootstrap_osd {
     # bootstrap OSD
     mkdir -p "$OSD_PATH"
     chown --verbose -R ceph. "$OSD_PATH"
+    if [ -n "$BLUESTORE_BLOCK_SIZE" ]; then
+      if ! grep -qE "bluestore_block_size = $BLUESTORE_BLOCK_SIZE" /etc/ceph/"${CLUSTER}".conf; then
+        echo "bluestore_block_size = $BLUESTORE_BLOCK_SIZE" >> /etc/ceph/"${CLUSTER}".conf
+      fi
+    fi
     ceph-disk -v prepare "${CLI_OPTS[@]}" "${CEPH_DISK_CLI_OPTS[@]}" "$PREPARE_OSD"
     # this second chown will chown the partition created by ceph-disk e.g: /dev/sda1 and /dev/sda2
     chown --verbose -R ceph. "$PREPARE_OSD"*
